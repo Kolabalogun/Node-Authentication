@@ -4,6 +4,9 @@ const fs = require("fs");
 const path = require("path");
 const app = express();
 const corsOptions = require("./config/corsOptions");
+const verifyJWT = require("./middleware/verifyJWT");
+const cookieParser = require("cookie-parser");
+const credentials = require("./middleware/credentials");
 
 const PORT = process.env.PORT || 3500;
 
@@ -14,8 +17,10 @@ const PORT = process.env.PORT || 3500;
 //   console.log("Flie created");
 // });
 
-// Cors
+// Middleware for cors oriGins
+app.use(credentials);
 
+// Cors
 app.use(cors(corsOptions));
 
 // Built in middleware to handle URL encoded data
@@ -24,15 +29,22 @@ app.use(express.urlencoded({ extended: false }));
 // Built in middleware for JSON
 app.use(express.json());
 
+// Middleware for cookies
+app.use(cookieParser());
+
 // Built in middleware for Static files
 app.use(express.static(path.join(__dirname, "/public")));
 
 // Routing
 app.use("/", require("./routes/root"));
 app.use("'/subdir", require("./routes/subdir"));
-app.use("/employees", require("./routes/api/employees"));
 app.use("/register", require("./routes/api/register"));
 app.use("/login", require("./routes/api/login"));
+app.use("/refresh", require("./routes/api/refreshToken"));
+app.use("/logout", require("./routes/api/logout"));
+
+app.use(verifyJWT);
+app.use("/employees", require("./routes/api/employees"));
 
 // app.get("/", (req, res) => {
 //   res.sendFile("./views/index.html", { root: __dirname });
