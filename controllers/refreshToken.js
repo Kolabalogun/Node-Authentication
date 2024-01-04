@@ -26,7 +26,7 @@ const handleRefreshToken = (req, res) => {
   // Evaluate JWT
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
     if (err || findUser.username !== decoded.username)
-      return res.sendStatus(403); // InvALID token
+      return res.sendStatus(403); // Invalid token
 
     const accessToken = jwt.sign(
       {
